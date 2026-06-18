@@ -33,6 +33,8 @@ class CatanGame {
     this.randomNumbers  = options.randomNumbers || false;  // default: standard spiral
     this.skinId         = options.skinId        || 'standard';
     this.debugDevCard   = options.debugDevCard  || null;
+    this.debugResources = options.debugResources || false; // give all players 10 of each
+    this.debugForceDice = options.debugForceDice || null;  // force dice total (2-12)
     this.players = playerConfigs.map((p, i) => ({
       id: i,
       name: p.name,
@@ -417,6 +419,11 @@ class CatanGame {
       this.phase = 'main';
       this.currentPlayerIndex = 0;
       this._log('log_setup_done');
+      if (this.debugResources) {
+        for (const p of this.players) {
+          p.resources = { wood:10, brick:10, sheep:10, wheat:10, ore:10 };
+        }
+      }
     } else {
       const half = this.players.length;
       if (this.setupStep === half) this.phase = 'setup2';
@@ -431,8 +438,17 @@ class CatanGame {
     if (this.phase !== 'main') return { error: 'Not in main phase' };
     if (this.diceRolled) return { error: 'Already rolled' };
 
-    const d1 = Math.floor(Math.random() * 6) + 1;
-    const d2 = Math.floor(Math.random() * 6) + 1;
+    let d1, d2;
+    if (this.debugForceDice) {
+      const target = parseInt(this.debugForceDice);
+      d1 = Math.min(6, Math.max(2, Math.ceil(target/2)));
+      d2 = target - d1;
+      if (d2 < 1) { d1--; d2 = target-d1; }
+      if (d2 > 6) { d2 = 6; d1 = target-6; }
+    } else {
+      d1 = Math.floor(Math.random() * 6) + 1;
+      d2 = Math.floor(Math.random() * 6) + 1;
+    }
     const total = d1 + d2;
     this.diceValues = [d1, d2];
     this.diceRolled = true;
@@ -960,7 +976,9 @@ class CatanGame {
       tradeOffer: this.currentTradeOffer,
       lastDrawnCard: this.lastDrawnCard || null,
       skinId:        this.skinId,
-      debugDevCard:  this.debugDevCard || null
+      debugDevCard:   this.debugDevCard  || null,
+      debugResources: this.debugResources || false,
+      debugForceDice: this.debugForceDice || null
     };
   }
 

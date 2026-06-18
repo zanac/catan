@@ -12,7 +12,9 @@ let desertCenter = true;  // default: desert at center
 let zeroResources = true;  // default: no starting resources
 let randomPorts   = false; // default: standard port layout
 let randomNumbers = false; // default: standard spiral number placement
-let debugDevCard  = null;  // debug: force first dev card type (null = disabled)
+let debugDevCard   = null;   // debug: force first dev card type
+let debugResources = false;  // debug: give 10 of each resource at game start
+let debugForceDice = null;   // debug: force dice total (null = disabled)
 let selectedSkinId = 'standard';
 let currentWebLink = '';
 let currentQRLink  = '';
@@ -555,7 +557,7 @@ function startGame() {
   requestAnimationFrame(() => {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, skinId: selectedSkinId, debugDevCard });
+    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
   });
 }
 
@@ -1014,7 +1016,11 @@ function render() {
       document.body.appendChild(dbg);
     }
     const names={monopoly:'Monopolio',knight:'Cavaliere',roadBuilding:'Strade',yearOfPlenty:'Abbondanza',victoryPoint:'Punto Vittoria'};
-    dbg.textContent='🐛 DEBUG: prima carta = '+(names[state.debugDevCard]||state.debugDevCard);
+    const parts = [];
+    if (state.debugDevCard) parts.push('carta='+( names[state.debugDevCard]||state.debugDevCard));
+    if (state.debugResources) parts.push('10 risorse');
+    if (state.debugForceDice) parts.push('dado='+state.debugForceDice);
+    dbg.textContent = '🐛 DEBUG: ' + parts.join(' | ');
   } else { document.getElementById('debug-dev-banner')?.remove(); }
   // Update browser tab title
   if (state) {
@@ -2054,6 +2060,14 @@ async function loadSkins() {
   } catch(e) { /* skins not available */ }
 }
 loadSkins();
+
+window.toggleDebugRes = function() {
+  debugResources = !debugResources;
+  document.getElementById('dbg-res')?.classList.toggle('active', debugResources);
+};
+window.setDebugDice = function(val) {
+  debugForceDice = val || null;
+};
 
 window.setDebugCard = function(type) {
   debugDevCard = type;

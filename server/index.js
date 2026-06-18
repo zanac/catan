@@ -232,7 +232,7 @@ function handle(msg, ws) {
 
     case 'START_GAME':
       if (!room) return;
-      room.game = new CatanGame(msg.players, { desertCenter: !!msg.desertCenter, zeroResources: msg.zeroResources !== false, randomPorts: !!msg.randomPorts, randomNumbers: !!msg.randomNumbers, skinId: msg.skinId || 'standard', debugDevCard: msg.debugDevCard || null });
+      room.game = new CatanGame(msg.players, { desertCenter: !!msg.desertCenter, zeroResources: msg.zeroResources !== false, randomPorts: !!msg.randomPorts, randomNumbers: !!msg.randomNumbers, skinId: msg.skinId || 'standard', debugDevCard: msg.debugDevCard || null, debugResources: !!msg.debugResources, debugForceDice: msg.debugForceDice || null });
       room.undoStack = [];
       broadcastState(pin);
       break;

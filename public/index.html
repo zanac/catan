@@ -77,6 +77,23 @@
           <button class="rule-btn" onclick="setDebugCard('yearOfPlenty')" id="dbg-yop">🌻 Abbondanza</button>
           <button class="rule-btn" onclick="setDebugCard('victoryPoint')" id="dbg-vp">⭐ Vittoria</button>
         </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+          <button class="rule-btn" id="dbg-res" onclick="toggleDebugRes()">💰 10 risorse iniziali</button>
+          <select id="dbg-dice" onchange="setDebugDice(this.value)" style="background:#1a1200;color:#f0c040;border:1.5px solid rgba(200,164,74,.4);border-radius:8px;padding:6px 10px;cursor:pointer">
+            <option value="">🎲 Dado libero</option>
+            <option value="2">🎲 Forza 2</option>
+            <option value="3">🎲 Forza 3</option>
+            <option value="4">🎲 Forza 4</option>
+            <option value="5">🎲 Forza 5</option>
+            <option value="6">🎲 Forza 6</option>
+            <option value="7">🎲 Forza 7 (bandito)</option>
+            <option value="8">🎲 Forza 8</option>
+            <option value="9">🎲 Forza 9</option>
+            <option value="10">🎲 Forza 10</option>
+            <option value="11">🎲 Forza 11</option>
+            <option value="12">🎲 Forza 12</option>
+          </select>
+        </div>
       </div>
 
       <!-- Zero resources rule -->
