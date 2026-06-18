@@ -2027,6 +2027,9 @@ function copyQRLink(type) {
 // Apply default scale (Maxi)
 document.body.classList.add('ui-xlarge');
 // ── Check URL params FIRST ──
+// Close all modals immediately on page load (may be stale from previous session)
+document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+
 const _urlParams  = new URLSearchParams(location.search);
 const urlPin      = _urlParams.get('pin');
 const urlPlayerId = _urlParams.get('playerId');
