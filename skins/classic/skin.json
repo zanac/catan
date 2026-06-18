@@ -1,0 +1,36 @@
+{
+  "id": "classic",
+  "name": "Classic Catan",
+  "version": "1.0",
+  "preview": "preview.png",
+  "provides": ["hex", "robber", "buildings", "roads"],
+  "hex": {
+    "wood":   "hex/wood.png",
+    "brick":  "hex/brick.png",
+    "sheep":  "hex/sheep.png",
+    "wheat":  "hex/wheat.png",
+    "ore":    "hex/ore.png",
+    "desert": "hex/desert.png"
+  },
+  "robber": "robber.png",
+  "buildings": {
+    "settlement": {
+      "red":    "buildings/settlement_red.png",
+      "blue":   "buildings/settlement_blue.png",
+      "green":  "buildings/settlement_green.png",
+      "yellow": "buildings/settlement_yellow.png"
+    },
+    "city": {
+      "red":    "buildings/city_red.png",
+      "blue":   "buildings/city_blue.png",
+      "green":  "buildings/city_green.png",
+      "yellow": "buildings/city_yellow.png"
+    }
+  },
+  "roads": {
+    "red":    "roads/road_red.png",
+    "blue":   "roads/road_blue.png",
+    "green":  "roads/road_green.png",
+    "yellow": "roads/road_yellow.png"
+  }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Catan">
+  <meta name="theme-color" content="#0a1220">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Catan Mobile</title>
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen active">
+    <div class="loading-inner">
+      <div class="loading-spinner"></div>
+      <p id="loading-msg">Connessione in corso…</p>
+    </div>
+  </div>
+
+  <!-- WAIT (not your turn) -->
+  <div id="screen-wait" class="screen">
+    <div class="wait-topbar">
+      <div class="wait-dot" id="wait-dot"></div>
+      <div class="wait-turn-text" id="wait-turn-text"></div>
+    </div>
+    <!-- Full-screen mini board -->
+    <div class="wait-board-wrap">
+      <canvas id="mini-canvas"></canvas>
+    </div>
+    <!-- My resources ribbon -->
+    <div class="my-resources-bar" id="my-resources-bar"></div>
+  </div>
+
+  <!-- ACTIVE TURN — board top, controls bottom sheet -->
+  <div id="screen-active" class="screen">
+
+    <!-- Board canvas (fills ~60% of screen) -->
+    <div id="mob-board-wrap">
+      <canvas id="mob-board-canvas"></canvas>
+      <!-- Build mode banner -->
+      <div id="mob-build-banner" class="mob-build-banner hidden"></div>
+    </div>
+
+    <!-- Bottom sheet -->
+    <div id="mob-sheet">
+
+      <!-- Sheet handle + player info -->
+      <div id="mob-sheet-header">
+        <div class="sheet-handle"></div>
+        <div id="mob-player-badge"></div>
+        <div id="mob-phase-label"></div>
+        <div id="mob-dice-row">
+          <span id="mob-die1" class="mob-die">?</span>
+          <span id="mob-die2" class="mob-die">?</span>
+        </div>
+      </div>
+
+      <!-- My resources (compact row) -->
+      <div id="mob-resources"></div>
+
+      <!-- Scrollable action area -->
+      <div id="mob-actions">
+
+        <!-- Setup instruction -->
+        <div id="mob-setup-panel" class="mob-panel">
+          <p id="mob-setup-instruction" class="mob-instruction"></p>
+          <p class="mob-hint" data-t="setup_place_sett_hint">Tap the board above to place</p>
+          <button id="mob-setup-undo-btn" class="mob-big-btn"
+            style="display:none;margin-top:10px;opacity:.85;background:rgba(60,60,80,.7);border-color:rgba(180,180,200,.4)"
+            onclick="send({type:'UNDO'})">↩ Undo</button>
+
+        </div>
+
+        <!-- Roll dice -->
+        <div id="mob-roll-panel" class="mob-panel">
+          <button id="mob-btn-roll" class="mob-big-btn green">🎲 <span data-t="mob_roll">Roll Dice</span></button>
+        </div>
+
+        <!-- Build / Trade / Cards -->
+        <div id="mob-main-panel" class="mob-panel">
+          <div class="mob-action-grid">
+            <button id="mob-btn-road"       class="mob-build-btn">🛤<span data-t="mob_road">Road</span><small>🪵+🧱</small></button>
+            <button id="mob-btn-settlement" class="mob-build-btn">🏠<span data-t="mob_settlement">Settlement</span><small>🪵🧱🐑🌾</small></button>
+            <button id="mob-btn-city"       class="mob-build-btn">🏙<span data-t="mob_city">City</span><small>🌾🌾🪨🪨🪨</small></button>
+            <button id="mob-btn-devcard"    class="mob-build-btn">🃏<span data-t="mob_devcard">Dev Card</span><small>🐑🌾🪨</small></button>
+            <button id="mob-btn-bank"       class="mob-build-btn">🏦<span data-t="mob_bank">Bank</span></button>
+            <button id="mob-btn-player"     class="mob-build-btn">🤝<span data-t="mob_trade">Trade</span></button>
+            <button id="mob-btn-play-dev"   class="mob-build-btn">🃏<span data-t="mob_use_card">Play Card</span></button>
+            <button id="mob-btn-undo"       class="mob-build-btn undo" disabled>↩<span data-t="mob_undo">Undo</span></button>
+            <button id="mob-btn-end-turn"   class="mob-build-btn end">▶<span data-t="mob_end_turn">End Turn</span></button>
+          </div>
+        </div>
+
+        <!-- Robber -->
+        <div id="mob-robber-panel" class="mob-panel">
+          <p class="mob-instruction" data-t="mob_robber_instruction">🦹 Tap the board to move the robber</p>
+        </div>
+
+        <!-- Discard -->
+        <div id="mob-discard-panel" class="mob-panel">
+          <h3 id="mob-discard-title" class="mob-panel-title"></h3>
+          <p id="mob-discard-info" class="mob-panel-sub"></p>
+          <div id="mob-discard-resources"></div>
+          <button id="mob-btn-discard-confirm" class="mob-big-btn red" style="margin-top:10px" data-t="mob_discard_btn">Discard</button>
+        </div>
+
+        <!-- Steal -->
+        <div id="mob-steal-panel" class="mob-panel">
+          <p class="mob-instruction" data-t="mob_steal_instruction">🦹 Steal a resource</p>
+          <div id="mob-steal-targets"></div>
+        </div>
+
+      </div><!-- /mob-actions -->
+
+      <!-- Wait overlay: shown when not my turn (NEVER destroys button DOM) -->
+      <div id="mob-wait-overlay" style="display:none;
+           position:absolute;inset:0;background:rgba(10,12,20,.82);
+           flex-direction:column;align-items:center;justify-content:center;
+           z-index:20;gap:10px;">
+        <div style="font-size:2.4rem">⏳</div>
+        <div id="mob-wait-who" style="font-size:1.1rem;font-weight:bold"></div>
+        <div id="mob-wait-what" style="font-size:.85rem;color:#c8b080"></div>
+      </div>
+
+    </div><!-- /mob-sheet -->
+
+  </div><!-- /screen-active -->
+
+  <!-- ── MODALS (bottom sheets) ── -->
+
+  <div id="mob-modal-bank" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2>🏦 <span data-t="mob_bank_title">Trade with Bank</span></h2>
+      <div class="mob-trade-cols">
+        <div><div class="mob-modal-label" data-t="mob_give">Give:</div><div id="mob-trade-give" class="mob-res-grid"></div></div>
+        <div class="mob-trade-arrow">⇄</div>
+        <div><div class="mob-modal-label" data-t="mob_receive">Receive:</div><div id="mob-trade-receive" class="mob-res-grid"></div></div>
+      </div>
+      <div id="mob-trade-ratio" class="mob-ratio-info"></div>
+      <div class="mob-modal-actions">
+        <button id="mob-btn-bank-confirm" class="mob-big-btn green" data-t="mob_swap">Trade</button>
+        <button class="mob-big-btn grey" onclick="closeMobModal('mob-modal-bank')" data-t="cancel_btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mob-modal-player-trade" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2>🤝 <span data-t="mob_trade_title">Trade Offer</span></h2>
+      <div id="mob-trade-targets" class="mob-targets-row"></div>
+      <div id="mob-pt-rows"></div>
+      <div id="mob-pt-error" class="mob-error hidden"></div>
+      <div class="mob-modal-actions">
+        <button id="mob-btn-pt-send" class="mob-big-btn green" data-t="mob_propose">Propose</button>
+        <button class="mob-big-btn grey" onclick="closeMobModal('mob-modal-player-trade')" data-t="cancel_btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mob-modal-accept" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2 id="mob-accept-title"></h2>
+      <div id="mob-accept-details"></div>
+      <div class="mob-modal-actions">
+        <button id="mob-btn-accept" class="mob-big-btn green" data-t="accept_btn">Accept</button>
+        <button id="mob-btn-reject" class="mob-big-btn red" data-t="reject_btn">Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mob-modal-dev" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2>🃏 <span data-t="mob_dev_title">Play Dev Card</span></h2>
+      <div id="mob-dev-list"></div>
+      <button class="mob-big-btn grey" style="margin-top:10px" onclick="closeMobModal('mob-modal-dev')" data-t="cancel_btn">Cancel</button>
+    </div>
+  </div>
+
+  <div id="mob-modal-yop" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2>🌻 <span data-t="mob_yop_title">Year of Plenty</span></h2>
+      <p style="color:#c8b080;margin-bottom:12px" data-t="choose_2_yop">Choose 2 resources:</p>
+      <div id="mob-yop-res" class="mob-res-grid large"></div>
+      <div class="mob-modal-actions">
+        <button id="mob-btn-yop-confirm" class="mob-big-btn green" data-t="confirm_btn">Confirm</button>
+        <button class="mob-big-btn grey" onclick="closeMobModal('mob-modal-yop')" data-t="cancel_btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mob-modal-monopoly" class="mob-modal">
+    <div class="mob-modal-inner">
+      <div class="mob-modal-drag"></div>
+      <h2>👑 <span data-t="mob_mono_title">Monopoly</span></h2>
+      <p style="color:#c8b080;margin-bottom:12px" data-t="monopoly_prompt">Choose a resource to claim:</p>
+      <div id="mob-mono-res" class="mob-res-grid large"></div>
+    </div>
+  </div>
+
+  <div id="mob-modal-winner" class="mob-modal">
+    <div class="mob-modal-inner winner">
+      <div id="mob-winner-content"></div>
+      <button onclick="location.reload()" class="mob-big-btn green" data-t="mob_new_game">New Game</button>
+    </div>
+  </div>
+
+  <!-- Dice overlay -->
+  <div id="mob-dice-overlay" class="mob-dice-overlay hidden">
+    <div class="mob-dice-wrap">
+      <div id="mob-big-d1" class="mob-big-die">?</div>
+      <div id="mob-big-d2" class="mob-big-die">?</div>
+    </div>
+    <div id="mob-dice-total" class="mob-dice-total"></div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/mobile.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('SW registered'))
+        .catch(e => console.warn('SW error', e));
+    }
+  </script>
+</body>
+</html>
