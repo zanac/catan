@@ -1607,9 +1607,10 @@ function showDiscardModal(forPlayerId) {
   openModal('modal-discard');
 }
 window.changeDiscard=(res,delta)=>{
-  if (!state || discardingPlayerId === null || discardingPlayerId === undefined) return;
+  console.log('[changeDiscard] called res='+res+' delta='+delta+' discardingPlayerId='+discardingPlayerId+' state='+!!state);
+  if (!state || discardingPlayerId === null || discardingPlayerId === undefined) { console.log('[changeDiscard] BLOCKED: state='+!!state+' pid='+discardingPlayerId); return; }
   const p    = state.players[discardingPlayerId];
-  if (!p) return;
+  if (!p) { console.log('[changeDiscard] BLOCKED: player not found for id='+discardingPlayerId); return; }
   const tot  = Object.values(p.resources).reduce((a,b)=>a+b,0);
   const must = Math.floor(tot/2);
   const currentSum = Object.values(discardAmounts).reduce((a,b)=>a+b,0);
