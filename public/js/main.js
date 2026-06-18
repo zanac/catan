@@ -155,6 +155,7 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
   if (data.type !== 'STATE_UPDATE') return;
   const prevDiceRolled   = state?.diceRolled || false;
   const prevPendingTrade = state?.pendingTrade || null;
+  const prevPendingSteal = state?.pendingSteal || false;
   const prevResources    = state ? state.players.map(p => ({...p.resources})) : null;
   const prevLastDrawn    = state?.lastDrawnCard || null;
   const prevSpecials     = state ? state.players.map(p => ({
@@ -216,6 +217,37 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
   // Detect trade resolution (pendingTrade was present, now gone)
   if (prevPendingTrade && !state?.pendingTrade && prevResources && state) {
     handleTradeResolution(prevPendingTrade, prevResources);
+  }
+  // Detect steal resolution (pendingSteal/auto-steal: resources changed after robber move)
+  if (prevResources && state && !state.pendingSteal) {
+    const thief = state.currentPlayerIndex;
+    // Check if anyone lost a resource (stolen)
+    for (const p of state.players) {
+      if (p.id === thief) continue;
+      const prev = prevResources[p.id];
+      const curr = p.resources;
+      const diffs = {};
+      for (const r of ['wood','brick','sheep','wheat','ore']) {
+        const d = (curr[r]||0) - (prev[r]||0);
+        if (d !== 0) diffs[r] = d;
+      }
+      if (Object.keys(diffs).length > 0 && Object.values(diffs).some(d => d < 0)) {
+        // Someone lost resources — show badges
+        const gains = {};
+        for (const [r,d] of Object.entries(diffs)) {
+          if (d > 0) {
+            if (!gains[thief]) gains[thief] = {};
+            gains[thief][r] = (gains[thief][r]||0) + d;
+          }
+        }
+        if (Object.keys(gains).length) {
+          setTimeout(() => {
+            renderPlayersWithGains(state, gains);
+          }, 300);
+        }
+        break;
+      }
+    }
   }
   // Detect dev card purchase
   const newDrawn = state?.lastDrawnCard;
