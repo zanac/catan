@@ -1583,8 +1583,11 @@ let discardAmounts={}, discardingPlayerId=null;
 
 function showDiscardModal(forPlayerId) {
   if (!state.pendingDiscard?.length) return;
-  if (document.getElementById('modal-discard').classList.contains('open')) return;
-  discardingPlayerId = forPlayerId ?? state.pendingDiscard[0];
+  const newPlayerId = forPlayerId ?? state.pendingDiscard[0];
+  // Already open for the same player — don't re-render (would reset discardAmounts)
+  if (document.getElementById('modal-discard').classList.contains('open') 
+      && discardingPlayerId === newPlayerId) return;
+  discardingPlayerId = newPlayerId;
   const p=state.players[discardingPlayerId];
   const total=Object.values(p.resources).reduce((a,b)=>a+b,0);
   const must=Math.floor(total/2);
@@ -1604,8 +1607,9 @@ function showDiscardModal(forPlayerId) {
   openModal('modal-discard');
 }
 window.changeDiscard=(res,delta)=>{
-  if (!state) return;
+  if (!state || discardingPlayerId === null || discardingPlayerId === undefined) return;
   const p    = state.players[discardingPlayerId];
+  if (!p) return;
   const tot  = Object.values(p.resources).reduce((a,b)=>a+b,0);
   const must = Math.floor(tot/2);
   const currentSum = Object.values(discardAmounts).reduce((a,b)=>a+b,0);
