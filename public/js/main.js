@@ -1613,10 +1613,9 @@ function showDiscardModal(forPlayerId) {
   openModal('modal-discard');
 }
 window.changeDiscard=(res,delta)=>{
-  console.log('[changeDiscard] called res='+res+' delta='+delta+' discardingPlayerId='+discardingPlayerId+' state='+!!state);
-  if (!state || discardingPlayerId === null || discardingPlayerId === undefined) { console.log('[changeDiscard] BLOCKED: state='+!!state+' pid='+discardingPlayerId); return; }
+  if (!state || discardingPlayerId === null || discardingPlayerId === undefined) return;
   const p    = state.players[discardingPlayerId];
-  if (!p) { console.log('[changeDiscard] BLOCKED: player not found for id='+discardingPlayerId); return; }
+  if (!p) return;
   const tot  = Object.values(p.resources).reduce((a,b)=>a+b,0);
   const must = Math.floor(tot/2);
   const currentSum = Object.values(discardAmounts).reduce((a,b)=>a+b,0);
@@ -1900,10 +1899,7 @@ function showWinner() {
 // ===================================================================
 //  MODAL / SCREEN UTILS
 // ===================================================================
-function openModal(id) {
-  if (id === 'modal-discard') console.log('[openModal] modal-discard opened, state='+!!state, new Error().stack.split('\n')[2]);
-  document.getElementById(id).classList.add('open');
-}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
 window.closeAllModals=()=>document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
