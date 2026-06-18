@@ -1900,7 +1900,10 @@ function showWinner() {
 // ===================================================================
 //  MODAL / SCREEN UTILS
 // ===================================================================
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+function openModal(id) {
+  if (id === 'modal-discard') console.log('[openModal] modal-discard opened, state='+!!state, new Error().stack.split('\n')[2]);
+  document.getElementById(id).classList.add('open');
+}
 window.closeAllModals=()=>document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
