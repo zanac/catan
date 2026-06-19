@@ -548,11 +548,12 @@ function renderPINBadge() {
 //  PHONE HOST MODE
 // ===================================================================
 
-let _phoneHostMode = false;
+let _phoneHostMode = sessionStorage.getItem('phoneHostMode') === '1';
 
 window.startPhoneHost = function() {
   if (!currentPin) { alert('PIN non disponibile. Ricarica la pagina.'); return; }
   _phoneHostMode = true;
+  sessionStorage.setItem('phoneHostMode', '1');
   const players = Array.from({length: playerCount}, (_,i) => ({
     name:  document.getElementById(`pname-${i}`)?.value?.trim() || t('player_n', i+1),
     color: playerColors[i] || CATAN_COLORS[i]
@@ -566,6 +567,7 @@ window.startPhoneHost = function() {
 
 window.phReset = function() {
   _phoneHostMode = false;
+  sessionStorage.removeItem('phoneHostMode');
   if (ws) { ws.onclose = null; ws.close(); }
   currentPin = null;
   history.replaceState({}, '', '/');
