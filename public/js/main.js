@@ -327,17 +327,20 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
 
     if (wasHidden || canvas.width === 0) {
       // Screen just became visible — wait for CSS transitions to settle before drawing
-      window._layoutPending = true;
+      // First render immediately so screen isn't black, then re-render after transition
+      canvas.width  = window.innerWidth  || 1280;
+      canvas.height = window.innerHeight || 720;
+      calcBoardTransform();
+      render();
+      if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
+      // Re-render after drawer CSS transition completes (fixes inset calculation)
       setTimeout(() => {
-        window._layoutPending = false;
         canvas.width  = window.innerWidth  || 1280;
         canvas.height = window.innerHeight || 720;
         calcBoardTransform();
         render();
-        if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
-      }, 320); // wait for drawer CSS transition (280ms) + buffer
+      }, 320);
     } else {
-      if (window._layoutPending) return; // defer until layout settles
       render();
       if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
     }
