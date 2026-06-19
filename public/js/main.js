@@ -222,6 +222,12 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     if (state.skinId && state.skinId !== (SKIN?.id ?? 'standard')) {
       loadSkinAssets(state.skinId);
     }
+    // Phone-host mode: never show game-screen, just update the host panel
+    if (_phoneHostMode) {
+      render(); // calls renderPhoneHost()
+      return;
+    }
+
     const gs = document.getElementById('game-screen');
     const wasHidden = !gs.classList.contains('active');
     if (wasHidden) {
