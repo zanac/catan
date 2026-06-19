@@ -327,7 +327,9 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
 
     if (wasHidden || canvas.width === 0) {
       // Screen just became visible — wait for CSS transitions to settle before drawing
+      window._layoutPending = true;
       setTimeout(() => {
+        window._layoutPending = false;
         canvas.width  = window.innerWidth  || 1280;
         canvas.height = window.innerHeight || 720;
         calcBoardTransform();
@@ -335,6 +337,7 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
         if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
       }, 320); // wait for drawer CSS transition (280ms) + buffer
     } else {
+      if (window._layoutPending) return; // defer until layout settles
       render();
       if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
     }
