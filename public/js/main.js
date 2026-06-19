@@ -352,6 +352,7 @@ function initSetupScreen(skipRoom) {
 
   document.querySelectorAll('.scale-btn').forEach(btn =>
     btn.addEventListener('click', () => {
+      if (_isMobile) return; // mobile: always use ui-xlarge
       uiScale = parseFloat(btn.dataset.scale);
       document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -2060,6 +2061,20 @@ document.body.classList.add('ui-xlarge');
 // ── Check URL params FIRST ──
 // Close all modals immediately on page load (may be stale from previous session)
 document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+
+// Mobile detection: hide UI scale selector and force max size for game
+const _isMobile = window.innerWidth <= 600 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+if (_isMobile) {
+  // Hide scale selector in setup — not needed on mobile
+  document.addEventListener('DOMContentLoaded', () => {
+    const scaleSel = document.querySelector('.scale-selector');
+    if (scaleSel) scaleSel.style.display = 'none';
+    const scaleLabel = document.querySelector('.scale-label-row');
+    if (scaleLabel) scaleLabel.style.display = 'none';
+  });
+  // Force ui-xlarge (Maxi +100%) for the game UI
+  document.body.classList.add('ui-xlarge');
+}
 
 const _urlParams  = new URLSearchParams(location.search);
 const urlPin      = _urlParams.get('pin');

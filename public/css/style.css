@@ -1385,6 +1385,27 @@ body.ui-xlarge .medal-badge, body.ui-xlarge .knight-count { font-size: 1.3rem; p
    SETUP SCREEN — MOBILE OPTIMIZATIONS (max 600px)
    ================================================================ */
 @media (max-width: 600px) {
+  /* Hide scale selector — forced to max on mobile */
+  .scale-selector { display: none !important; }
+
+  /* On setup screen, don't apply ui-xlarge sizing (keep compact) */
+  body.ui-xlarge #setup-screen .setup-container,
+  body.ui-large  #setup-screen .setup-container {
+    font-size: 1rem;
+  }
+  body.ui-xlarge #setup-screen .catan-title,
+  body.ui-large  #setup-screen .catan-title { font-size: 1.8rem; }
+  body.ui-xlarge #setup-screen .count-btn,
+  body.ui-large  #setup-screen .count-btn   { width: 42px; height: 42px; font-size: 1.1rem; }
+  body.ui-xlarge #setup-screen .big-btn,
+  body.ui-large  #setup-screen .big-btn     { font-size: .95rem; padding: 12px 20px; }
+  body.ui-xlarge #setup-screen .color-dot,
+  body.ui-large  #setup-screen .color-dot   { width: 30px; height: 30px; }
+  body.ui-xlarge #setup-screen .rule-btn,
+  body.ui-large  #setup-screen .rule-btn    { font-size: .8rem; padding: 6px 10px; }
+  body.ui-xlarge #setup-screen .skin-btn img,
+  body.ui-large  #setup-screen .skin-btn img { width: 52px; height: 52px; }
+
   .setup-container {
     padding: 24px 16px;
     width: 96%;
