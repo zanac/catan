@@ -696,7 +696,7 @@ function renderPhoneHost() {
       <div class="ph-player-status">⭐ ${pts}</div>
       <div class="ph-player-btns">
         <button class="ph-qr-btn" onclick="phShowQR(${p.id})">QR</button>
-        <a class="ph-link-btn" href="${location.origin}/?pin=${currentPin}" target="_blank">🔗</a>
+        <button class="ph-link-btn" onclick="phOpenLink(${p.id})">🔗</button>
       </div>`;
     container.appendChild(card);
   });
@@ -708,31 +708,48 @@ function renderPhoneHost() {
   }
 }
 
-async function phShowQR(playerId) {
-  const url = `${location.origin}/?pin=${currentPin}`;
+window.phOpenLink = async function(playerId) {
   const p = state?.players?.[playerId];
-  // Reuse showSpectatorQRModal or create inline
+  try {
+    const r = await fetch('/api/generate-mobile-qr', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pin: currentPin, playerIndex: playerId, playerName: p?.name, lang: LANG })
+    });
+    const d = await r.json();
+    window.open(d.mobileUrl, '_blank');
+  } catch(e) { alert('Errore: ' + e.message); }
+};
+
+async function phShowQR(playerId) {
+  const p = state?.players?.[playerId];
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center';
   modal.innerHTML = `
     <div style="background:#0e1420;border:2px solid rgba(200,164,74,.4);border-radius:16px;padding:24px;text-align:center;max-width:300px;width:90%">
       <div style="color:${p?.color||'#f0c040'};font-size:1.1rem;font-weight:bold;margin-bottom:12px">${escHtml(p?.name||'')}</div>
       <img id="ph-qr-img-${playerId}" style="width:200px;height:200px;border-radius:8px" src="" alt="QR">
-      <div style="color:#8a7a60;font-size:.75rem;margin-top:8px">Apri link →</div>
-      <a href="${url}" target="_blank" style="color:#80e080;font-size:.8rem;word-break:break-all">${url}</a>
-      <button onclick="this.closest('div[style]').remove()" style="display:block;width:100%;margin-top:14px;padding:10px;background:rgba(200,164,74,.2);border:1.5px solid #c8a44a;border-radius:8px;color:#f0c040;cursor:pointer;font-size:.9rem">Chiudi</button>
+      <div id="ph-qr-link-${playerId}" style="color:#8a7a60;font-size:.75rem;margin-top:8px">Generazione QR...</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="display:block;width:100%;margin-top:14px;padding:10px;background:rgba(200,164,74,.2);border:1.5px solid #c8a44a;border-radius:8px;color:#f0c040;cursor:pointer;font-size:.9rem">Chiudi</button>
     </div>`;
   document.body.appendChild(modal);
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 
+  // Generate proper mobile QR with token (like normal player QR)
   try {
-    const r = await fetch('/api/generate-qr', {
+    const r = await fetch('/api/generate-mobile-qr', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ pin: currentPin, playerIndex: playerId,
+                             playerName: p?.name, lang: LANG })
     });
     const d = await r.json();
-    document.getElementById(`ph-qr-img-${playerId}`).src = d.qrDataUrl;
-  } catch(e) {}
+    const img = document.getElementById(`ph-qr-img-${playerId}`);
+    const lnk = document.getElementById(`ph-qr-link-${playerId}`);
+    if (img) img.src = d.qrDataUrl;
+    if (lnk) lnk.innerHTML = `<a href="${d.mobileUrl}" target="_blank" style="color:#80e080;word-break:break-all;font-size:.75rem">${d.mobileUrl}</a>`;
+  } catch(e) {
+    const lnk = document.getElementById(`ph-qr-link-${playerId}`);
+    if (lnk) lnk.textContent = 'Errore QR: ' + e.message;
+  }
 }
 
 // ===================================================================

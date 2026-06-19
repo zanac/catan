@@ -24,6 +24,22 @@ app.get('/api/qr', async (req, res) => {
 });
 
 // ── Generate QR for any URL (used by spectator) ──
+// Alias used by phone-host mode to generate player mobile QR
+app.post('/api/generate-mobile-qr', async (req, res) => {
+  const { pin, playerIndex, playerName, lang } = req.body;
+  if (!pin || !rooms.has(pin)) return res.status(404).json({ error: 'Room not found' });
+  const room  = rooms.get(pin);
+  const token = crypto.randomBytes(12).toString('hex');
+  room.mobileTokens.set(token, { playerId: playerIndex, playerName: playerName || `P${playerIndex}`, pin });
+  const host  = req.headers['x-forwarded-host'] || req.headers.host;
+  const proto = req.headers['x-forwarded-proto'] || (req.socket.encrypted ? 'https' : 'http');
+  const url   = `${proto}://${host}/mobile?token=${token}&pin=${pin}&lang=${lang||'it'}`;
+  try {
+    const qr = await QRCode.toDataURL(url, { width:300, margin:2, color:{ dark:'#1a1200', light:'#f0e6c8' } });
+    res.json({ mobileUrl: url, qrDataUrl: qr });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 app.post('/api/generate-qr', async (req, res) => {
   try {
     const { url } = req.body;
