@@ -1380,3 +1380,55 @@ body.ui-xlarge .medal-badge, body.ui-xlarge .knight-count { font-size: 1.3rem; p
 .skin-card.active { border-color: #c8a44a; background: rgba(200,164,74,.2); color: #f0c040; }
 .skin-preview { width: 72px; height: 48px; object-fit: cover; border-radius: 6px; }
 .skin-preview-placeholder { width: 72px; height: 48px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; }
+
+/* ================================================================
+   SETUP SCREEN — MOBILE OPTIMIZATIONS (max 600px)
+   ================================================================ */
+@media (max-width: 600px) {
+  .setup-container {
+    padding: 24px 16px;
+    width: 96%;
+    border-radius: 14px;
+  }
+  .catan-title { font-size: 1.8rem; margin-bottom: 6px; }
+  .subtitle    { font-size: .9rem; margin-bottom: 16px; }
+
+  /* Player count */
+  .count-btn { width: 42px; height: 42px; font-size: 1.1rem; }
+
+  /* UI scale selector: wrap nicely */
+  .scale-selector { gap: 6px; }
+  .scale-btn { padding: 8px 10px; min-width: 70px; }
+  .scale-btn .scale-icon  { font-size: 1.2rem; }
+  .scale-btn .scale-label { font-size: .68rem; }
+
+  /* Player rows: stack name above colors */
+  .player-config-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .player-config-row label { min-width: 70px; font-size: .85rem; }
+  .player-config-row input { min-width: 0; font-size: .95rem; padding: 8px 10px; }
+  .color-dot { width: 30px; height: 30px; }
+
+  /* Join pin */
+  .join-pin-row { flex-wrap: wrap; gap: 8px; }
+  .join-pin-input { font-size: 1.1rem; }
+
+  /* Rule buttons */
+  .rule-btn { font-size: .8rem; padding: 6px 10px; }
+
+  /* Skin buttons */
+  .skin-btn { min-width: 80px; padding: 8px; }
+  .skin-btn img { width: 52px; height: 52px; }
+  .skin-btn span { font-size: .75rem; }
+
+  /* Start buttons row */
+  .setup-actions { gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .big-btn { font-size: .95rem; padding: 12px 20px; }
+
+  /* Debug section */
+  #debug-dev-section { margin: 6px 0; }
+  #debug-dev-section .rule-btn { font-size: .72rem; padding: 5px 8px; }
+  #dbg-dice { font-size: .8rem; }
+}
