@@ -215,6 +215,8 @@ const TRANSLATIONS = {
     devcard_yop_desc:         'Prendi 2 risorse qualsiasi dalla banca',
     devcard_road_desc:        'Costruisci 2 strade gratuitamente',
 
+    rule_quick_game: '⚡ Partita Veloce (7pt)',
+
     colors: ['Rosso','Blu','Verde','Giallo','Viola','Arancio'],
 
     // Resource names
@@ -424,6 +426,8 @@ const TRANSLATIONS = {
     devcard_yop_desc:         'Take any 2 resources from the bank',
     devcard_road_desc:        'Build 2 roads for free',
 
+    rule_quick_game: '⚡ Quick Game (7pts)',
+
     colors: ['Red','Blue','Green','Yellow','Purple','Orange'],
     res: { wood:'wood', brick:'brick', sheep:'sheep', wheat:'wheat', ore:'ore' },
   },
@@ -631,6 +635,8 @@ const TRANSLATIONS = {
     devcard_yop_desc:         'Prenez 2 ressources de votre choix dans la banque',
     devcard_road_desc:        'Construisez 2 routes gratuitement',
 
+    rule_quick_game: '⚡ Partie Rapide (7pts)',
+
     colors: ['Rouge','Bleu','Vert','Jaune','Violet','Orange'],
     res: { wood:'bois', brick:'argile', sheep:'laine', wheat:'blé', ore:'minerai' },
   },
@@ -837,6 +843,8 @@ const TRANSLATIONS = {
     devcard_mono_desc:    'Ressource wählen: alle anderen Spieler geben dir alle ihre Karten dieses Typs',
     devcard_yop_desc:         '2 beliebige Ressourcen aus der Bank nehmen',
     devcard_road_desc:        '2 Straßen kostenlos bauen',
+
+    rule_quick_game: '⚡ Schnellspiel (7Pkt)',
 
     colors: ['Rot','Blau','Grün','Gelb','Lila','Orange'],
     res: { wood:'Holz', brick:'Lehm', sheep:'Wolle', wheat:'Getreide', ore:'Erz' },

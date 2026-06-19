@@ -12,6 +12,7 @@ let desertCenter = true;  // default: desert at center
 let zeroResources = true;  // default: no starting resources
 let randomPorts   = false; // default: standard port layout
 let randomNumbers = false; // default: standard spiral number placement
+let quickGame     = false; // default: win at 10 points; quick=win at 7
 let debugDevCard   = null;   // debug: force first dev card type
 let debugResources = false;  // debug: give 10 of each resource at game start
 let debugForceDice = null;   // debug: force dice total (null = disabled)
@@ -395,7 +396,11 @@ function initSetupScreen(skipRoom) {
   document.getElementById('btn-random-numbers')?.addEventListener('click', () => {
     randomNumbers = !randomNumbers;
     document.getElementById('btn-random-numbers').classList.toggle('active', randomNumbers);
-  })
+  });
+  document.getElementById('btn-quick-game')?.addEventListener('click', () => {
+    quickGame = !quickGame;
+    document.getElementById('btn-quick-game').classList.toggle('active', quickGame);
+  });
 
   // Debug mode: show dev card selector if ?debug=1 in URL
   if (_urlParams.get('debug') === '1') {
@@ -599,7 +604,7 @@ function startGame() {
   requestAnimationFrame(() => {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
+    send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame, skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
   });
 }
 
@@ -638,7 +643,7 @@ window.startPhoneHost = function() {
   showScreen('phone-host-screen');
   document.getElementById('ph-pin-value').textContent = currentPin;
   history.replaceState({}, '', `?pin=${currentPin}`);
-  send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers,
+  send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers, quickGame,
          skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
 };
 

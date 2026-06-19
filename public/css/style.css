@@ -1561,3 +1561,7 @@ body.ui-xlarge .medal-badge, body.ui-xlarge .knight-count { font-size: 1.3rem; p
   margin-top: 8px;
 }
 #ph-reset-btn:active { opacity: .7; }
+
+#phone-host-btn {
+  margin-top: 10px;
+}

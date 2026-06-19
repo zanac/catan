@@ -33,6 +33,7 @@ class CatanGame {
     this.randomNumbers  = options.randomNumbers || false;  // default: standard spiral
     this.skinId         = options.skinId        || 'standard';
     this.debugDevCard   = options.debugDevCard  || null;
+    this.winPoints      = options.quickGame ? 7 : 10;
     this.debugResources = options.debugResources || false; // give all players 10 of each
     this.debugForceDice = options.debugForceDice || null;  // force dice total (2-12)
     this.players = playerConfigs.map((p, i) => ({
@@ -937,7 +938,7 @@ class CatanGame {
   }
 
   _checkWin(player) {
-    if (player.points >= 10) {
+    if (player.points >= this.winPoints) {
       this.winner = player.id;
     }
   }
@@ -977,6 +978,7 @@ class CatanGame {
       lastDrawnCard: this.lastDrawnCard || null,
       skinId:        this.skinId,
       debugDevCard:   this.debugDevCard  || null,
+      winPoints:      this.winPoints || 10,
       debugResources: this.debugResources || false,
       debugForceDice: this.debugForceDice || null
     };
