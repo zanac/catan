@@ -1935,7 +1935,14 @@ function showWinner() {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 window.closeAllModals=()=>document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'));
 
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (_isMobile) {
+    if (id === 'game-screen') { document.body.classList.add('ui-xlarge'); }
+    else { document.body.classList.remove('ui-xlarge','ui-large'); }
+  }
+}
 
 // ===================================================================
 //  COLOR UTILS
@@ -2062,19 +2069,8 @@ document.body.classList.add('ui-xlarge');
 // Close all modals immediately on page load (may be stale from previous session)
 document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
 
-// Mobile detection: hide UI scale selector and force max size for game
+// Mobile detection: force max UI size only during game, not setup
 const _isMobile = window.innerWidth <= 600 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-if (_isMobile) {
-  // Hide scale selector in setup — not needed on mobile
-  document.addEventListener('DOMContentLoaded', () => {
-    const scaleSel = document.querySelector('.scale-selector');
-    if (scaleSel) scaleSel.style.display = 'none';
-    const scaleLabel = document.querySelector('.scale-label-row');
-    if (scaleLabel) scaleLabel.style.display = 'none';
-  });
-  // Force ui-xlarge (Maxi +100%) for the game UI
-  document.body.classList.add('ui-xlarge');
-}
 
 const _urlParams  = new URLSearchParams(location.search);
 const urlPin      = _urlParams.get('pin');
