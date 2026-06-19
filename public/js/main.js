@@ -23,6 +23,12 @@ let currentPin = null;
 
 // Mobile detection — declared early so all code can use it
 const _isMobile = window.innerWidth <= 600 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+if (_isMobile) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('phone-host-btn');
+    if (btn) btn.style.display = '';
+  });
+}
 let WEB_PLAYER_ID = null; // set when joining as specific player via web link // 5-digit room PIN
 
 function applyTranslations() {
@@ -617,6 +623,119 @@ function renderPINBadge() {
 // ===================================================================
 
 // ===================================================================
+//  PHONE HOST MODE
+// ===================================================================
+
+let _phoneHostMode = false;
+
+window.startPhoneHost = function() {
+  if (!currentPin) { alert('PIN non disponibile. Ricarica la pagina.'); return; }
+  _phoneHostMode = true;
+  const players = Array.from({length: playerCount}, (_,i) => ({
+    name:  document.getElementById(`pname-${i}`)?.value?.trim() || t('player_n', i+1),
+    color: playerColors[i] || CATAN_COLORS[i]
+  }));
+  showScreen('phone-host-screen');
+  document.getElementById('ph-pin-value').textContent = currentPin;
+  history.replaceState({}, '', `?pin=${currentPin}`);
+  send({ type: 'START_GAME', players, desertCenter, zeroResources, randomPorts, randomNumbers,
+         skinId: selectedSkinId, debugDevCard, debugResources, debugForceDice });
+};
+
+window.phReset = function() {
+  _phoneHostMode = false;
+  if (ws) { ws.onclose = null; ws.close(); }
+  currentPin = null;
+  history.replaceState({}, '', '/');
+  location.reload();
+};
+
+function renderPhoneHost() {
+  if (!state || !_phoneHostMode) return;
+
+  // Phase label
+  const phaseEl = document.getElementById('ph-phase');
+  if (phaseEl) {
+    const cur = state.players[state.currentPlayerIndex];
+    let phaseText = '';
+    if (state.winner !== null) {
+      phaseText = `🏆 ${state.players[state.winner].name} ha vinto!`;
+    } else if (state.phase === 'setup1' || state.phase === 'setup2') {
+      phaseText = `${cur?.name} — ${t('phase_place_settlement') || 'Posiziona villaggio'}`;
+    } else if (!state.diceRolled) {
+      phaseText = `${cur?.name} — ${t('phase_rolling') || 'Lancia i dadi'}`;
+    } else if (state.pendingRobber) {
+      phaseText = `${cur?.name} — ${t('phase_robber') || 'Muovi il bandito'}`;
+    } else if (state.pendingDiscard?.length) {
+      phaseText = `⚠️ ${t('phase_discard') || 'Scarta risorse'}`;
+    } else {
+      phaseText = `${cur?.name} — ${t('phase_building') || 'Costruisci / Commercia'}`;
+    }
+    phaseEl.textContent = phaseText;
+  }
+
+  // Player cards
+  const container = document.getElementById('ph-players');
+  if (!container) return;
+  container.innerHTML = '';
+  const cur = state.currentPlayerIndex;
+
+  state.players.forEach(p => {
+    const webUrl = `${location.origin}/?pin=${currentPin}&token=${p.token||''}`;
+    const isActive = p.id === cur && state.winner === null;
+    const pts = p.points || 0;
+
+    const card = document.createElement('div');
+    card.className = 'ph-player-card' + (isActive ? ' active' : '');
+    card.style.borderColor = isActive ? p.color : '';
+    card.style.color = p.color;
+
+    card.innerHTML = `
+      <div class="ph-player-dot" style="background:${p.color}"></div>
+      <div class="ph-player-name" style="color:${p.color}">${escHtml(p.name)}</div>
+      <div class="ph-player-status">⭐ ${pts}</div>
+      <div class="ph-player-btns">
+        <button class="ph-qr-btn" onclick="phShowQR(${p.id})">QR</button>
+        <a class="ph-link-btn" href="${location.origin}/?pin=${currentPin}" target="_blank">🔗</a>
+      </div>`;
+    container.appendChild(card);
+  });
+
+  // Winner
+  if (state.winner !== null) {
+    const statusEl = document.getElementById('ph-status');
+    if (statusEl) statusEl.textContent = `🏆 ${state.players[state.winner].name} ha vinto con ${state.players[state.winner].points} punti!`;
+  }
+}
+
+async function phShowQR(playerId) {
+  const url = `${location.origin}/?pin=${currentPin}`;
+  const p = state?.players?.[playerId];
+  // Reuse showSpectatorQRModal or create inline
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:#0e1420;border:2px solid rgba(200,164,74,.4);border-radius:16px;padding:24px;text-align:center;max-width:300px;width:90%">
+      <div style="color:${p?.color||'#f0c040'};font-size:1.1rem;font-weight:bold;margin-bottom:12px">${escHtml(p?.name||'')}</div>
+      <img id="ph-qr-img-${playerId}" style="width:200px;height:200px;border-radius:8px" src="" alt="QR">
+      <div style="color:#8a7a60;font-size:.75rem;margin-top:8px">Apri link →</div>
+      <a href="${url}" target="_blank" style="color:#80e080;font-size:.8rem;word-break:break-all">${url}</a>
+      <button onclick="this.closest('div[style]').remove()" style="display:block;width:100%;margin-top:14px;padding:10px;background:rgba(200,164,74,.2);border:1.5px solid #c8a44a;border-radius:8px;color:#f0c040;cursor:pointer;font-size:.9rem">Chiudi</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+  try {
+    const r = await fetch('/api/generate-qr', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ url })
+    });
+    const d = await r.json();
+    document.getElementById(`ph-qr-img-${playerId}`).src = d.qrDataUrl;
+  } catch(e) {}
+}
+
+// ===================================================================
 //  DRAWER SYSTEM
 // ===================================================================
 const drawerState = { players: false, actions: false, log: false };
@@ -1069,6 +1188,7 @@ function render() {
       document.title = 'Catan — Admin';
     }
   }
+  if (_phoneHostMode) { renderPhoneHost(); return; }
   calcBoardTransform();
   renderBoard();
   renderPlayers();

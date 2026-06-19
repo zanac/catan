@@ -112,6 +112,24 @@
       </div>
 
       <button id="start-btn" class="big-btn primary" data-t="start_btn">🎲 Start Game</button>
+      <button id="phone-host-btn" class="big-btn" style="display:none;background:rgba(80,180,80,.2);border-color:#50b450;color:#80e080" onclick="startPhoneHost()">📱 Gioca da telefono</button>
+    </div>
+  </div>
+
+  <!-- PHONE HOST SCREEN -->
+  <div id="phone-host-screen" class="screen">
+    <div id="ph-container">
+      <div id="ph-header">
+        <div id="ph-title">📱 Catan — Solo Telefono</div>
+        <div id="ph-phase"></div>
+      </div>
+      <div id="ph-pin-block">
+        <div id="ph-pin-label">PIN partita</div>
+        <div id="ph-pin-value"></div>
+      </div>
+      <div id="ph-players"></div>
+      <div id="ph-status"></div>
+      <button id="ph-reset-btn" onclick="phReset()">↺ Nuova Partita</button>
     </div>
   </div>
 
