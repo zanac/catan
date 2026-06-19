@@ -116,11 +116,7 @@ function connectWS() {
     if (dismiss) { dismiss.classList.remove('visible'); }
     const gainPopups = document.getElementById('gain-popups');
     if (gainPopups) gainPopups.innerHTML = '';
-    // Mark next STATE_UPDATE as a rejoin ONLY on first connection, not auto-reconnects
-    if (!window._hasConnectedOnce) {
-      window._isRejoin = true;
-      window._hasConnectedOnce = true;
-    }
+
   };
   ws.onmessage = (e) => { onMessage(JSON.parse(e.data)); };
   ws.onclose   = () => {
@@ -175,10 +171,7 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
   state = data.state;
 
   // Detect fresh dice roll BEFORE render()
-  // Skip fresh roll detection on rejoin (first state after F5/reconnect)
-  const isRejoin = !!window._isRejoin;
-  window._isRejoin = false; // clear immediately
-  const isFreshRoll = !window.__SPECTATOR_MODE && !isRejoin && !prevDiceRolled && state?.diceRolled && state?.diceValues?.[0];
+  const isFreshRoll = !window.__SPECTATOR_MODE && !prevDiceRolled && state?.diceRolled && state?.diceValues?.[0];
   if (isFreshRoll) {
     diceAnimating = true;
     document.body.classList.add("gain-blocking");
@@ -188,41 +181,6 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     canvas.style.pointerEvents = 'auto';
   } else if (!isFreshRoll) {
     canvas.style.pointerEvents = '';
-  }
-  // On rejoin: clear blocking state and restore drawer
-  if (isRejoin) {
-    diceAnimating = false;
-    document.body.classList.remove('gain-blocking');
-    const d = document.getElementById('gain-dismiss');
-    if (d) { d.classList.remove('visible'); d.style.display = ''; }
-    const gp = document.getElementById('gain-popups');
-    if (gp) gp.innerHTML = '';
-    // Re-open players drawer (closed by default, opened by gain popup normally)
-    drawerState.players = true;
-    document.getElementById('drawer-players')?.classList.add('open');
-    document.getElementById('tab-players')?.classList.add('open');
-    window._drawerOpenedAt = Date.now(); // track when drawer was opened
-    // Reset all modal local state on rejoin so checkModals reopens them correctly
-    // Discard modal
-    discardAmounts = {}; discardingPlayerId = null;
-    document.getElementById('modal-discard')?.classList.remove('open');
-    // Trade bank modal
-    tradeGive = null; tradeReceive = null;
-    document.getElementById('modal-trade-bank')?.classList.remove('open');
-    // Year of Plenty modal
-    yopChoices = [];
-    document.getElementById('modal-yop')?.classList.remove('open');
-    // Trade player modal
-    ptOffer = {wood:0,brick:0,sheep:0,wheat:0,ore:0};
-    ptWant  = {wood:0,brick:0,sheep:0,wheat:0,ore:0};
-    ptTarget = null;
-    document.getElementById('modal-trade-player')?.classList.remove('open');
-    document.getElementById('modal-trade-accept')?.classList.remove('open');
-    // Steal + dev card modals (no local state, just close)
-    document.getElementById('modal-steal')?.classList.remove('open');
-    document.getElementById('modal-dev-play')?.classList.remove('open');
-    document.getElementById('modal-monopoly')?.classList.remove('open');
-    document.getElementById('modal-winner')?.classList.remove('open');
   }
 
   // Detect trade resolution (pendingTrade was present, now gone)
@@ -327,20 +285,13 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     }
 
     if (wasHidden || canvas.width === 0) {
-      // Screen just became visible — wait for CSS transitions to settle before drawing
-      // First render immediately so screen isn't black, then re-render after transition
-      canvas.width  = window.innerWidth  || 1280;
-      canvas.height = window.innerHeight || 720;
-      calcBoardTransform();
-      render();
-      if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
-      // Re-render after drawer CSS transition completes (fixes inset calculation)
-      setTimeout(() => {
+      // Screen just became visible — wait one frame for layout before drawing
+      requestAnimationFrame(() => {
         canvas.width  = window.innerWidth  || 1280;
         canvas.height = window.innerHeight || 720;
-        calcBoardTransform();
         render();
-      }, 320);
+        if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
+      });
     } else {
       render();
       if (isFreshRoll) handleDiceRollAnimation(state, prevDiceRolled);
@@ -828,10 +779,8 @@ function getDrawerInsets() {
   if (window.__SPECTATOR_MODE) {
     return { left: leftW, right: 0, top: hudH, bottom: 0 };
   }
-  // If drawer was just opened, CSS transition may not be complete yet
-  const drawerSettled = !window._drawerOpenedAt || (Date.now() - window._drawerOpenedAt) > 300;
   return {
-    left:   drawerState.players ? (drawerSettled ? leftW + tabW : tabW) : tabW,
+    left:   drawerState.players ? leftW + tabW : tabW,
     right:  drawerState.actions ? rightW + tabW : tabW,
     top:    hudH,
     bottom: drawerState.log ? botH + tabW : tabW
