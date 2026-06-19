@@ -2063,8 +2063,8 @@ function copyQRLink(type) {
 // ===================================================================
 //  INIT
 // ===================================================================
-// Apply default scale (Maxi)
-document.body.classList.add('ui-xlarge');
+// Apply default scale (Maxi) — on mobile only when entering game-screen
+if (!_isMobile) document.body.classList.add("ui-xlarge");
 // ── Check URL params FIRST ──
 // Close all modals immediately on page load (may be stale from previous session)
 document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
