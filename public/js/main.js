@@ -20,6 +20,9 @@ let currentWebLink = '';
 let currentQRLink  = '';
 let SKIN = null; // loaded skin data: { id, hexImages:{wood:Image,...} }
 let currentPin = null;
+
+// Mobile detection — declared early so all code can use it
+const _isMobile = window.innerWidth <= 600 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 let WEB_PLAYER_ID = null; // set when joining as specific player via web link // 5-digit room PIN
 
 function applyTranslations() {
@@ -2069,8 +2072,7 @@ if (!_isMobile) document.body.classList.add("ui-xlarge");
 // Close all modals immediately on page load (may be stale from previous session)
 document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
 
-// Mobile detection: force max UI size only during game, not setup
-const _isMobile = window.innerWidth <= 600 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+// Mobile detection moved to top of file
 
 const _urlParams  = new URLSearchParams(location.search);
 const urlPin      = _urlParams.get('pin');
