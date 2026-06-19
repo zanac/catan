@@ -201,6 +201,7 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     drawerState.players = true;
     document.getElementById('drawer-players')?.classList.add('open');
     document.getElementById('tab-players')?.classList.add('open');
+    window._drawerOpenedAt = Date.now(); // track when drawer was opened
     // Reset all modal local state on rejoin so checkModals reopens them correctly
     // Discard modal
     discardAmounts = {}; discardingPlayerId = null;
@@ -827,8 +828,10 @@ function getDrawerInsets() {
   if (window.__SPECTATOR_MODE) {
     return { left: leftW, right: 0, top: hudH, bottom: 0 };
   }
+  // If drawer was just opened, CSS transition may not be complete yet
+  const drawerSettled = !window._drawerOpenedAt || (Date.now() - window._drawerOpenedAt) > 300;
   return {
-    left:   drawerState.players ? leftW + tabW : tabW,
+    left:   drawerState.players ? (drawerSettled ? leftW + tabW : tabW) : tabW,
     right:  drawerState.actions ? rightW + tabW : tabW,
     top:    hudH,
     bottom: drawerState.log ? botH + tabW : tabW
