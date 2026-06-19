@@ -311,7 +311,7 @@ function onMessage(data) { if (window._onMessageHook) window._onMessageHook(data
     }
     const gs = document.getElementById('game-screen');
     const wasHidden = !gs.classList.contains('active');
-    if (wasHidden) {
+    if (wasHidden && !_phoneHostMode) {
       showScreen('game-screen');
       renderPINBadge();
     }
