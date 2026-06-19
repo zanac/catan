@@ -217,6 +217,8 @@ const TRANSLATIONS = {
 
     rule_quick_game: '⚡ Partita Veloce (7pt)',
 
+    phone_host_btn: '📱 Gioca da telefono',
+
     colors: ['Rosso','Blu','Verde','Giallo','Viola','Arancio'],
 
     // Resource names
@@ -428,6 +430,8 @@ const TRANSLATIONS = {
 
     rule_quick_game: '⚡ Quick Game (7pts)',
 
+    phone_host_btn: '📱 Play from phone',
+
     colors: ['Red','Blue','Green','Yellow','Purple','Orange'],
     res: { wood:'wood', brick:'brick', sheep:'sheep', wheat:'wheat', ore:'ore' },
   },
@@ -637,6 +641,8 @@ const TRANSLATIONS = {
 
     rule_quick_game: '⚡ Partie Rapide (7pts)',
 
+    phone_host_btn: '📱 Jouer depuis le téléphone',
+
     colors: ['Rouge','Bleu','Vert','Jaune','Violet','Orange'],
     res: { wood:'bois', brick:'argile', sheep:'laine', wheat:'blé', ore:'minerai' },
   },
@@ -845,6 +851,8 @@ const TRANSLATIONS = {
     devcard_road_desc:        '2 Straßen kostenlos bauen',
 
     rule_quick_game: '⚡ Schnellspiel (7Pkt)',
+
+    phone_host_btn: '📱 Vom Handy spielen',
 
     colors: ['Rot','Blau','Grün','Gelb','Lila','Orange'],
     res: { wood:'Holz', brick:'Lehm', sheep:'Wolle', wheat:'Getreide', ore:'Erz' },

@@ -1,4 +1,4 @@
-# 🎲 Catan Web
+# 🎲 Settlers of Catan
 
 A full web-based multiplayer implementation of Settlers of Catan, playable from any browser — no app required.
 
@@ -41,7 +41,7 @@ A full web-based multiplayer implementation of Settlers of Catan, playable from 
 
 1. Open the game on a phone
 2. Configure players and rules as usual
-3. Tap **📱 Gioca da telefono** — a compact host screen appears
+3. Tap **📱 Play from phone** — a compact host screen appears
 4. Each player taps **QR** to scan their personal link, or **🔗** to open it directly
 5. Everyone plays from their own phone — no desktop board needed
 
@@ -133,4 +133,6 @@ Open `http://localhost:3000` in your browser.
 
 Tested on [Render](https://render.com) — set start command to `node server/index.js`.
 
-Demo: [https://catan-vk1j.onrender.com](https://catan-vk1j.onrender.com)
+## Demo
+
+[https://catan-vk1j.onrender.com](https://catan-vk1j.onrender.com)
