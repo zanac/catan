@@ -101,18 +101,20 @@ Open `/?debug=1` to show a debug panel in the setup screen.
 
 ### Force first dev card
 
-| Button | Card |
-|--------|------|
-| 👑 Monopolio | Monopoly — steal all of one resource from everyone |
-| ⚔️ Cavaliere | Knight — move robber |
-| 🛤 Strade | Road Building — place 2 free roads |
-| 🌻 Abbondanza | Year of Plenty — take any 2 resources |
-| ⭐ Vittoria | Victory Point — +1 secret point |
+| Card | Effect |
+|------|--------|
+| 👑 Monopoly | Steal all of one resource type from everyone |
+| ⚔️ Knight | Move the robber and steal from an adjacent player |
+| 🛤 Road Building | Place 2 roads for free |
+| 🌻 Year of Plenty | Take any 2 resources from the bank |
+| ⭐ Victory Point | +1 secret point (revealed only on win) |
+
+The button labels are localized — they appear in the browser language (EN/IT/FR/DE).
 
 ### Other debug options
 
-- **💰 10 risorse iniziali** — all players start with 10 of each resource when the main phase begins
-- **🎲 Forza dado** — force a specific dice total (2–12) on every roll; useful for testing the robber (force 7)
+- **💰 10 resources** — all players start with 10 of each resource when the main phase begins
+- **🎲 Force dice** — force a specific dice total (2–12) on every roll; useful for testing the robber (force 7)
 
 A red banner `🐛 DEBUG: ...` appears at the top confirming active debug options.
 
